@@ -8,6 +8,8 @@
 	<string>Tendina</string>
 	<key>CFBundleDisplayName</key>
 	<string>Tendina</string>
+	<key>CFBundleIconFile</key>
+	<string>Tendina</string>
 	<key>CFBundleExecutable</key>
 	<string>Tendina</string>
 	<key>CFBundlePackageType</key>

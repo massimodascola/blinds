@@ -12,6 +12,7 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 swiftc -O -swift-version 5 -target arm64-apple-macos13 \
   Sources/*.swift -o "$APP/Contents/MacOS/Tendina"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
+cp Resources/Tendina.icns "$APP/Contents/Resources/Tendina.icns"
 
 # Firma locale "ad hoc": basta per usarla su questo Mac.
 codesign --force --sign - "$APP"
