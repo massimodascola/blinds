@@ -11,8 +11,15 @@ import ServiceManagement
 //   insieme a TUTTE le icone alla sua sinistra, senza lasciare buchi;
 // * un'icona più larga di circa metà schermo viene scartata e ignorata.
 // Per nascondere basta quindi allargare il separatore oltre lo spazio libero
-// ma sotto la metà dello schermo. Si usano solo funzioni pubbliche di Apple,
-// nessun permesso di Accessibilità o di registrazione schermo.
+// ma sotto la metà dello schermo.
+//
+// Su macOS 26 e precedenti le icone sono ancora finestre separate e vale il
+// metodo classico di Hidden Bar e Ice: separatore largo 10.000 punti, che
+// spinge fuori dallo schermo tutto quello che ha a sinistra. NON PROVATO qui
+// (questo Mac ha macOS 27): è il metodo che quelle app usavano fino a macOS 26.
+//
+// Si usano solo funzioni pubbliche di Apple, nessun permesso di Accessibilità
+// o di registrazione schermo.
 
 enum Preferenze {
     static let richiudiDaSola = "richiudiDaSola"
@@ -94,12 +101,17 @@ final class Tendina: NSObject, NSMenuDelegate {
         }
     }
 
-    // Più largo dello spazio libero accanto alla tacca, ma sotto la metà dello
-    // schermo più stretto: oltre quella soglia macOS scarta l'icona (misurato:
-    // su 1800 punti funziona a 850, viene scartata a 950).
     private func larghezzaChiusa() -> CGFloat {
-        let piuStretto = NSScreen.screens.map { $0.frame.width }.min() ?? 1440
-        return (piuStretto * 0.44).rounded()
+        if #available(macOS 27, *) {
+            // Più largo dello spazio libero accanto alla tacca, ma sotto la metà
+            // dello schermo più stretto: oltre quella soglia macOS 27 scarta
+            // l'icona (misurato: su 1800 punti funziona a 850, scartata a 950).
+            let piuStretto = NSScreen.screens.map { $0.frame.width }.min() ?? 1440
+            return (piuStretto * 0.44).rounded()
+        } else {
+            // Metodo classico fino a macOS 26: fuori da qualunque schermo.
+            return 10_000
+        }
     }
 
     // Se la lineetta finisse a destra della freccia, chiudere nasconderebbe
@@ -225,7 +237,7 @@ final class Tendina: NSObject, NSMenuDelegate {
         2. Clicca la freccia per nasconderle o mostrarle. Da tastiera: ⌃⌥⌘B.
         3. Clic destro sulla freccia per le opzioni.
 
-        Se la barra è piena, le icone che non ci stanno finiscono nella « di macOS anche a tendina aperta.
+        Se la barra è piena, anche a tendina aperta le icone che non ci stanno restano nascoste da macOS (su macOS 27 le trovi nella sua «).
 
         Se la freccia sparisce: premi ⌃⌥⌘B, oppure riapri Tendina da Spotlight.
         """)

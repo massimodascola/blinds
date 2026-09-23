@@ -39,7 +39,14 @@ Misure fatte su questo Mac il 23/09/2026 (macOS 27.0, build 26A428, schermo da 1
 
 Tendina quindi allarga la lineetta al 44% della larghezza dello schermo più stretto (792 punti su questo Mac): troppo larga per starci, ma sotto la soglia. La lineetta e tutto quello che ha a sinistra spariscono. Per mostrare, torna larga 10 punti.
 
+Su macOS 26 e precedenti le icone sono ancora finestre separate. Lì Tendina usa il metodo classico di Hidden Bar e Ice: separatore largo 10.000 punti, che spinge fuori dallo schermo tutto quello che ha a sinistra.
+
 Usa solo funzioni pubbliche di Apple: nessun permesso di Accessibilità, di registrazione schermo o di monitoraggio input. La scorciatoia usa l'API Carbon, vecchia ma l'unica che non chiede permessi.
+
+## Compatibilità
+
+* **macOS 27**: provata (MacBook Pro con tacca, macOS 27.0).
+* **macOS 13 fino a 26**: dovrebbe funzionare con il metodo classico, ma **non è provata**. Se la usi su una di queste versioni, una segnalazione nelle issue è preziosa, anche solo per dire che funziona.
 
 ## Limiti noti
 
@@ -52,7 +59,7 @@ Usa solo funzioni pubbliche di Apple: nessun permesso di Accessibilità, di regi
 
 * **La freccia è sparita**: premi ⌃⌥⌘B, oppure riapri Tendina da Spotlight (riaprirla mostra tutto). Poi controlla che la lineetta sia a sinistra della freccia.
 * **Non nasconde niente**: apri la tendina e controlla che le icone da nascondere siano a sinistra della lineetta. Se Tendina trova la lineetta a destra della freccia, non chiude e lo dice.
-* **Dopo un aggiornamento di macOS smette di funzionare**: probabilmente Apple ha cambiato la soglia di larghezza. Prova a cambiare `0.44` in `larghezzaChiusa()` dentro `Sources/Tendina.swift` (più basso se l'icona viene scartata e le icone ricompaiono), poi `sh build.sh --installa`.
+* **Dopo un aggiornamento di macOS smette di funzionare**: probabilmente Apple ha cambiato la soglia di larghezza (vale per macOS 27 e successivi). Prova a cambiare `0.44` in `larghezzaChiusa()` dentro `Sources/Tendina.swift` (più basso se l'icona viene scartata e le icone ricompaiono), poi `sh build.sh --installa`.
 * **Hidden Bar e Tendina insieme** si pestano i piedi: tenerne attiva una sola.
 * **Per disinstallare**: dal menu togli la spunta "Apri all'accensione", poi Esci, poi cestina `/Applications/Tendina.app`.
 
@@ -66,6 +73,6 @@ Sperimentale: provata solo su un MacBook Pro con tacca e macOS 27.0. Segnalazion
 
 * `Sources/Tendina.swift`: tutto il programma (un solo file, commentato).
 * `Resources/Info.plist`: nome, identificativo `com.massimodascola.tendina`, niente icona nel Dock.
-* `Resources/Tendina.icns`, `Resources/icona.png`: l'icona.
+* `Resources/Tendina.icns`, `Resources/icona.png`: l'icona, una finestra con la tendina abbassata sul blu di sistema di macOS 27 (`#0088FF`).
 * `tools/disegna-icona.swift`, `tools/crea-icona.sh`: disegnano l'icona e la convertono. Servono solo se si cambia il disegno.
 * `build.sh`: compila, firma e installa.

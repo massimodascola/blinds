@@ -41,7 +41,14 @@ Measured on a 14" MacBook Pro with a notch, macOS 27.0 (26A428), 1800-point wide
 
 So Tendina widens its divider to 44% of the narrowest screen (792 points here): too wide to fit, but below the limit. The divider and everything to its left disappear. To show them, it goes back to 10 points.
 
+On macOS 26 and earlier, status items are still separate windows. There Tendina uses the classic Hidden Bar and Ice method: a 10,000-point divider that pushes everything to its left off screen.
+
 Only public Apple APIs are used: no Accessibility, Screen Recording or Input Monitoring permission. The global shortcut uses the old Carbon API, the only one that needs no permission.
+
+## Compatibility
+
+* **macOS 27**: tested (notched MacBook Pro, macOS 27.0).
+* **macOS 13 to 26**: should work with the classic method, but it is **not tested**. If you run it on one of these versions, please open an issue, even just to say it works.
 
 ## Known limits
 
@@ -54,11 +61,11 @@ Only public Apple APIs are used: no Accessibility, Screen Recording or Input Mon
 
 * **The arrow disappeared**: press ⌃⌥⌘B, or open Tendina again from Spotlight (reopening shows everything). Then make sure the divider is to the left of the arrow.
 * **Nothing gets hidden**: open Tendina and check that the icons are to the left of the divider. If the divider is to the right of the arrow, Tendina refuses to close and tells you.
-* **It stops working after a macOS update**: Apple probably changed the width limit. Try changing `0.44` in `larghezzaChiusa()` in `Sources/Tendina.swift` (lower it if the icons come back), then run `sh build.sh --installa`.
+* **It stops working after a macOS update**: Apple probably changed the width limit (macOS 27 and later). Try changing `0.44` in `larghezzaChiusa()` in `Sources/Tendina.swift` (lower it if the icons come back), then run `sh build.sh --installa`.
 * Don't run Hidden Bar and Tendina at the same time.
 
 ## Author and license
 
 Made by **Massimo D'Ascola** ([@massimodascola](https://github.com/massimodascola)). MIT license, see `LICENSE`.
 
-Experimental: tested only on one notched MacBook Pro with macOS 27.0. Issues and pull requests are welcome.
+Experimental: tested only on one notched MacBook Pro with macOS 27.0. The icon is a window with a half-lowered shade on the macOS 27 system blue (`#0088FF`). Issues and pull requests are welcome.
