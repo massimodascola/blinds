@@ -20,7 +20,7 @@ You need an Apple Silicon Mac and Apple's developer tools. If you don't have the
 curl -fsSL https://raw.githubusercontent.com/massimodascola/blinds/master/install.sh | sh
 ```
 
-Downloads the source, builds it, copies Blinds to Applications and launches it. Run the same command again to update. The script is [install.sh](install.sh): read it first if you want to know what it does.
+Downloads the source, builds it, copies Blinds to Applications and launches it. The script is [install.sh](install.sh): read it first if you want to know what it does.
 
 ### 2. Homebrew
 
@@ -29,11 +29,7 @@ brew install massimodascola/tap/blinds
 blinds-install
 ```
 
-Homebrew builds Blinds but cannot copy apps into Applications on its own: the `blinds-install` command does that. To update:
-
-```sh
-brew upgrade blinds && blinds-install
-```
+Homebrew builds Blinds but cannot copy apps into Applications on its own: the `blinds-install` command does that.
 
 ### 3. From source
 
@@ -43,7 +39,33 @@ cd blinds
 sh build.sh --install
 ```
 
-To update, from the `blinds` folder: `git pull && sh build.sh --install`. Without `--install`, `build.sh` only builds `build/Blinds.app`.
+Without `--install`, `build.sh` only builds `build/Blinds.app`.
+
+### Update
+
+Update the same way you installed it. Your icon positions and settings are kept.
+
+* **One command**: run it again.
+
+  ```sh
+  curl -fsSL https://raw.githubusercontent.com/massimodascola/blinds/master/install.sh | sh
+  ```
+
+* **Homebrew**:
+
+  ```sh
+  brew update && brew upgrade blinds && blinds-install
+  ```
+
+  Name the formula: `brew upgrade` on its own updates every Homebrew package on your Mac.
+
+* **From source**, in the `blinds` folder:
+
+  ```sh
+  git pull && sh build.sh --install
+  ```
+
+Not sure how you installed it? The one-command way works in any case. Still on Tendina, the old name? Any of the three replaces it and moves the old app to the Trash; with Homebrew, follow [these steps](https://github.com/massimodascola/homebrew-tap#blinds).
 
 ### Uninstall
 
@@ -81,7 +103,8 @@ Only public Apple APIs are used: no Accessibility, Screen Recording or Input Mon
 ## Compatibility
 
 * **macOS 27**: tested (notched MacBook Pro, macOS 27.0).
-* **macOS 13 to 26**: should work with the classic method, but it is **not tested**. If you run it on one of these versions, please open an issue, even just to say it works.
+* **macOS 26**: reported working on macOS 26.6.2 (MacBook Pro with M1), with the classic method.
+* **macOS 13 to 15**: should work with the same classic method, but it is **not tested**. If you run it on one of these versions, please open an issue, even just to say it works.
 
 ## Known limits
 

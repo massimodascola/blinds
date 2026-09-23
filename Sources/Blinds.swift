@@ -15,8 +15,8 @@ import ServiceManagement
 //
 // On macOS 26 and earlier, status items are still separate windows and the
 // classic Hidden Bar / Ice method applies: a 10,000-point divider pushes
-// everything to its left off screen. NOT TESTED here (this Mac runs macOS 27):
-// it is the method those apps used up to macOS 26.
+// everything to its left off screen. Reported working on macOS 26.6.2
+// (MacBook Pro M1); not tested on macOS 13 to 15.
 //
 // Only public Apple APIs are used: no Accessibility or Screen Recording
 // permission.

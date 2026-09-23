@@ -20,7 +20,7 @@ Serve un Mac con Apple Silicon e gli strumenti di sviluppo di Apple. Se non li h
 curl -fsSL https://raw.githubusercontent.com/massimodascola/blinds/master/install.sh | sh
 ```
 
-Scarica il codice, lo compila, copia Blinds in Applicazioni e la avvia. Per aggiornarla, rilancia lo stesso comando. Lo script è [install.sh](install.sh): leggilo prima, se vuoi sapere cosa fa.
+Scarica il codice, lo compila, copia Blinds in Applicazioni e la avvia. Lo script è [install.sh](install.sh): leggilo prima, se vuoi sapere cosa fa.
 
 ### 2. Homebrew
 
@@ -29,11 +29,7 @@ brew install massimodascola/tap/blinds
 blinds-install
 ```
 
-Homebrew compila Blinds, ma non può copiare app in Applicazioni da solo: lo fa il comando `blinds-install`. Per aggiornarla:
-
-```sh
-brew upgrade blinds && blinds-install
-```
+Homebrew compila Blinds, ma non può copiare app in Applicazioni da solo: lo fa il comando `blinds-install`.
 
 ### 3. Dal codice
 
@@ -43,7 +39,33 @@ cd blinds
 sh build.sh --install
 ```
 
-Per aggiornarla, dalla cartella `blinds`: `git pull && sh build.sh --install`. Senza `--install`, `build.sh` compila soltanto in `build/Blinds.app`.
+Senza `--install`, `build.sh` compila soltanto in `build/Blinds.app`.
+
+### Aggiornare
+
+Si aggiorna con la stessa strada usata per installarla. Posizioni delle icone e impostazioni restano.
+
+* **Un solo comando**: rilancialo.
+
+  ```sh
+  curl -fsSL https://raw.githubusercontent.com/massimodascola/blinds/master/install.sh | sh
+  ```
+
+* **Homebrew**:
+
+  ```sh
+  brew update && brew upgrade blinds && blinds-install
+  ```
+
+  Scrivi sempre il nome della formula: `brew upgrade` da solo aggiorna tutti i pacchetti Homebrew del Mac.
+
+* **Dal codice**, nella cartella `blinds`:
+
+  ```sh
+  git pull && sh build.sh --install
+  ```
+
+Non ricordi come l'hai installata? Il comando unico funziona in ogni caso. Hai ancora Tendina, il vecchio nome? Una qualunque delle tre strade la sostituisce e sposta la vecchia app nel Cestino; con Homebrew segui [questi passaggi](https://github.com/massimodascola/homebrew-tap#blinds).
 
 ### Disinstallare
 
@@ -81,7 +103,8 @@ Usa solo funzioni pubbliche di Apple: nessun permesso di Accessibilità, di regi
 ## Compatibilità
 
 * **macOS 27**: provata (MacBook Pro con tacca, macOS 27.0).
-* **macOS 13 fino a 26**: dovrebbe funzionare con il metodo classico, ma **non è provata**. Se la usi su una di queste versioni, una segnalazione nelle issue è preziosa, anche solo per dire che funziona.
+* **macOS 26**: segnalata funzionante su macOS 26.6.2 (MacBook Pro con M1), con il metodo classico.
+* **macOS 13 fino a 15**: dovrebbe funzionare con lo stesso metodo classico, ma **non è provata**. Se la usi su una di queste versioni, una segnalazione nelle issue è preziosa, anche solo per dire che funziona.
 
 ## Limiti noti
 
