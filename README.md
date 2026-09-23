@@ -1,110 +1,113 @@
-<p align="center"><img src="Resources/icona.png" width="160" alt="Icona di Tendina"></p>
+<p align="center"><img src="Resources/icon.png" width="160" alt="Tendina icon"></p>
 
 # Tendina
 
-*English version: [README.en.md](README.en.md)*
+*Leggi in italiano: [README.it.md](README.it.md)*
 
-Piccola app per la barra dei menu del Mac: nasconde le icone che scegli tu e le mostra con un clic. Sostituisce Hidden Bar, che su macOS 27 non funziona più.
+A tiny menu bar app for macOS that hides the icons you choose and shows them again with one click. Built as a replacement for Hidden Bar (and Ice), which stopped working on macOS 27. "Tendina" is Italian for "roller blind".
 
-## Installare
+## Install
 
-Tre strade, scegline una. Tutte compilano l'app sul tuo Mac: per questo non serve una firma Apple e non compare nessun avviso di sicurezza.
+Three ways, pick one. All of them build the app on your own Mac, so no Apple signature is needed and no security warning shows up.
 
-Serve un Mac con Apple Silicon e gli strumenti di sviluppo di Apple. Se non li hai, si installano gratis con `xcode-select --install`.
+You need an Apple Silicon Mac and Apple's developer tools. If you don't have them, install them for free with `xcode-select --install`.
 
-### 1. Un solo comando
+### 1. One command
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/massimodascola/tendina/master/install.sh | sh
 ```
 
-Scarica il codice, lo compila, copia Tendina in Applicazioni e la avvia. Per aggiornarla, rilancia lo stesso comando. Lo script è [install.sh](install.sh): leggilo prima, se vuoi sapere cosa fa.
+Downloads the source, builds it, copies Tendina to Applications and launches it. Run the same command again to update. The script is [install.sh](install.sh): read it first if you want to know what it does.
 
 ### 2. Homebrew
 
 ```sh
 brew install massimodascola/tap/tendina
-tendina-installa
+tendina-install
 ```
 
-Homebrew compila Tendina, ma non può copiare app in Applicazioni da solo: lo fa il comando `tendina-installa`. Per aggiornarla:
+Homebrew builds Tendina but cannot copy apps into Applications on its own: the `tendina-install` command does that. To update:
 
 ```sh
-brew upgrade tendina && tendina-installa
+brew upgrade tendina && tendina-install
 ```
 
-### 3. Dal codice
+### 3. From source
 
 ```sh
 git clone https://github.com/massimodascola/tendina.git
 cd tendina
-sh build.sh --installa
+sh build.sh --install
 ```
 
-Per aggiornarla, dalla cartella `tendina`: `git pull && sh build.sh --installa`. Senza `--installa`, `build.sh` compila soltanto in `build/Tendina.app`.
+To update, from the `tendina` folder: `git pull && sh build.sh --install`. Without `--install`, `build.sh` only builds `build/Tendina.app`.
 
-### Disinstallare
+### Uninstall
 
-Dal menu di Tendina togli la spunta "Apri all'accensione", poi Esci, poi cestina `/Applications/Tendina.app`. Se l'hai installata con Homebrew, anche `brew uninstall tendina`.
+In Tendina's menu untick "Open at Login", then choose "Quit Tendina", then move `/Applications/Tendina.app` to the Trash. If you used Homebrew, also run `brew uninstall tendina`.
 
-## Come si usa
+## How to use it
 
-* **Scegliere cosa nascondere**: tieni premuto ⌘ e trascina nella barra le icone da nascondere, mettendole **a sinistra della lineetta │**. Quelle a destra della freccia restano sempre visibili.
-* **Aprire e chiudere**: clic sulla freccia. `‹` vuol dire "ci sono icone nascoste", `›` vuol dire "è tutto aperto".
-* **Da tastiera**: ⌃⌥⌘B (control, option, comando, B).
-* **Opzioni**: clic destro sulla freccia.
-  * Richiudi da sola dopo 10 secondi (attiva di serie). Aspetta se hai un menu aperto o il mouse sulla barra.
-  * Apri all'accensione del Mac.
-  * Come si usa, Esci.
+* **Choose what to hide**: hold ⌘ and drag the menu bar icons you want to hide **to the left of the │ divider**. Everything to the right of the arrow always stays visible.
+* **Show and hide**: click the arrow. `‹` means "some icons are hidden", `›` means "everything is shown".
+* **Keyboard**: ⌃⌥⌘B (control, option, command, B).
+* **Options**: right-click the arrow.
+  * Hide Again After 10 Seconds (on by default). It waits while a menu is open or the pointer is on the menu bar.
+  * Open at Login.
+  * How to Use, Quit Tendina.
 
-Quando la tendina è chiusa la lineetta non si vede: per spostare altre icone, prima aprila.
+The divider is hidden while Tendina is collapsed: expand it first to move more icons.
 
-## Come funziona
+The app is in English, with an Italian translation that macOS picks automatically when your Mac is set to Italian.
 
-Su macOS 27 Apple ha rifatto la barra dei menu: le icone le disegna un processo di sistema (MenuBarAgent) e non sono più finestre separate. Hidden Bar allargava un suo separatore a 10.000 punti per spingere le altre icone fuori dallo schermo. Ora macOS scarta un'icona così larga, e il trucco non funziona più.
+## How it works
 
-Misure fatte su questo Mac il 23/09/2026 (macOS 27.0, build 26A428, schermo da 1800 punti):
+On macOS 27 Apple rebuilt the menu bar: status items are drawn by a system process (MenuBarAgent) and are no longer separate windows. Hidden Bar used to widen its divider to 10,000 points to push other icons off screen; macOS 27 now discards such an item, so the trick no longer works.
 
-* quando un'icona non ci sta, macOS la mette nel suo menu di troppo pieno (la freccia « di sistema) **insieme a tutte le icone alla sua sinistra**, senza lasciare buchi;
-* un'icona larga 850 punti viene gestita così, una da 950 punti viene scartata e ignorata. La soglia è circa metà dello schermo.
+Measured on a 14" MacBook Pro with a notch, macOS 27.0 (26A428), 1800-point wide screen, on 23 September 2026:
 
-Tendina quindi allarga la lineetta al 44% della larghezza dello schermo più stretto (792 punti su questo Mac): troppo larga per starci, ma sotto la soglia. La lineetta e tutto quello che ha a sinistra spariscono. Per mostrare, torna larga 10 punti.
+* when an item does not fit, macOS moves it to its own overflow menu (the system « button) **together with every item to its left**, leaving no gap;
+* an 850-point item is handled that way, a 950-point item is discarded and ignored. The limit is about half the screen width.
 
-Su macOS 26 e precedenti le icone sono ancora finestre separate. Lì Tendina usa il metodo classico di Hidden Bar e Ice: separatore largo 10.000 punti, che spinge fuori dallo schermo tutto quello che ha a sinistra.
+So Tendina widens its divider to 44% of the narrowest screen (792 points here): too wide to fit, but below the limit. The divider and everything to its left disappear. To show them, it goes back to 10 points.
 
-Usa solo funzioni pubbliche di Apple: nessun permesso di Accessibilità, di registrazione schermo o di monitoraggio input. La scorciatoia usa l'API Carbon, vecchia ma l'unica che non chiede permessi.
+On macOS 26 and earlier, status items are still separate windows. There Tendina uses the classic Hidden Bar and Ice method: a 10,000-point divider that pushes everything to its left off screen.
 
-## Compatibilità
+Only public Apple APIs are used: no Accessibility, Screen Recording or Input Monitoring permission. The global shortcut uses the old Carbon API, the only one that needs no permission.
 
-* **macOS 27**: provata (MacBook Pro con tacca, macOS 27.0).
-* **macOS 13 fino a 26**: dovrebbe funzionare con il metodo classico, ma **non è provata**. Se la usi su una di queste versioni, una segnalazione nelle issue è preziosa, anche solo per dire che funziona.
+## Compatibility
 
-## Limiti noti
+* **macOS 27**: tested (notched MacBook Pro, macOS 27.0).
+* **macOS 13 to 26**: should work with the classic method, but it is **not tested**. If you run it on one of these versions, please open an issue, even just to say it works.
 
-* **Barra piena**: il Mac ha la tacca, e a destra della tacca c'è posto per circa 790 punti di icone. Se a tendina aperta le icone non ci stanno tutte, macOS mette quelle più a sinistra nella sua « come sempre.
-* **Schermi esterni**: non provato. Su uno schermo largo, con molto spazio libero, le icone nascoste potrebbero ricomparire.
-* **Solo Mac con Apple Silicon** (`arm64`). Per un Mac Intel va cambiato il `-target` in `build.sh`.
-* La firma è "ad hoc", fatta sul Mac che compila. Non c'è una versione già pronta da scaricare.
+## Known limits
 
-## Se si rompe
+* **Full menu bar**: on notched Macs there are about 790 points to the right of the notch. If the visible icons don't all fit when Tendina is expanded, macOS puts the leftmost ones in its « menu as usual.
+* **External displays**: not tested. On a wide screen with lots of free space, hidden icons might reappear.
+* **Apple Silicon only** (`arm64`). For Intel, change `-target` in `build.sh`.
+* The app is signed ad hoc by the Mac that builds it. There is no prebuilt download.
 
-* **La freccia è sparita**: premi ⌃⌥⌘B, oppure riapri Tendina da Spotlight (riaprirla mostra tutto). Poi controlla che la lineetta sia a sinistra della freccia.
-* **Non nasconde niente**: apri la tendina e controlla che le icone da nascondere siano a sinistra della lineetta. Se Tendina trova la lineetta a destra della freccia, non chiude e lo dice.
-* **Dopo un aggiornamento di macOS smette di funzionare**: probabilmente Apple ha cambiato la soglia di larghezza (vale per macOS 27 e successivi). Prova a cambiare `0.44` in `larghezzaChiusa()` dentro `Sources/Tendina.swift` (più basso se l'icona viene scartata e le icone ricompaiono), poi `sh build.sh --installa`.
-* **Hidden Bar e Tendina insieme** si pestano i piedi: tenerne attiva una sola.
+## If something breaks
 
-## Autore e licenza
+* **The arrow disappeared**: press ⌃⌥⌘B, or open Tendina again from Spotlight (reopening shows everything). Then make sure the divider is to the left of the arrow.
+* **Nothing gets hidden**: expand Tendina and check that the icons are to the left of the divider. If the divider is to the right of the arrow, Tendina refuses to collapse and tells you.
+* **It stops working after a macOS update**: Apple probably changed the width limit (macOS 27 and later). Try changing `0.44` in `collapsedDividerWidth()` in `Sources/Tendina.swift` (lower it if the icons come back), then run `sh build.sh --install`.
+* Don't run Hidden Bar and Tendina at the same time.
 
-Creata da **Massimo D'Ascola** ([@massimodascola](https://github.com/massimodascola)). Licenza MIT: puoi usarla, modificarla e ridistribuirla, mantenendo la nota sull'autore (vedi `LICENSE`).
+## Files
 
-Sperimentale: provata solo su un MacBook Pro con tacca e macOS 27.0. Segnalazioni e correzioni sono benvenute nelle issue.
+* `Sources/Tendina.swift`: the whole app (a single, commented file).
+* `Resources/Info.plist`: name, identifier `com.massimodascola.tendina`, no Dock icon.
+* `Resources/en.lproj`, `Resources/it.lproj`: the app's texts in English (default) and Italian.
+* `Resources/Tendina.icns`, `Resources/icon.png`: the icon, a window with a half-lowered shade on the macOS 27 system blue (`#0088FF`).
+* `tools/draw-icon.swift`, `tools/make-icon.sh`: draw the icon and convert it. Only needed when the drawing changes.
+* `build.sh`: builds, signs and installs.
+* `install.sh`: one-command install (downloads the source and runs `build.sh`).
+* The Homebrew formula lives in a separate repo: [massimodascola/homebrew-tap](https://github.com/massimodascola/homebrew-tap).
 
-## File
+## Author and license
 
-* `Sources/Tendina.swift`: tutto il programma (un solo file, commentato).
-* `Resources/Info.plist`: nome, identificativo `com.massimodascola.tendina`, niente icona nel Dock.
-* `Resources/Tendina.icns`, `Resources/icona.png`: l'icona, una finestra con la tendina abbassata sul blu di sistema di macOS 27 (`#0088FF`).
-* `tools/disegna-icona.swift`, `tools/crea-icona.sh`: disegnano l'icona e la convertono. Servono solo se si cambia il disegno.
-* `build.sh`: compila, firma e installa.
-* `install.sh`: installazione con un solo comando (scarica il codice e lancia `build.sh`).
-* La formula Homebrew sta in un repo a parte: [massimodascola/homebrew-tap](https://github.com/massimodascola/homebrew-tap).
+Made by **Massimo D'Ascola** ([@massimodascola](https://github.com/massimodascola)). MIT license, see `LICENSE`.
+
+Experimental: tested only on one notched MacBook Pro with macOS 27.0. Issues and pull requests are welcome.

@@ -2,329 +2,329 @@ import AppKit
 import Carbon.HIToolbox
 import ServiceManagement
 
-// Tendina: nasconde le icone della barra dei menu che stanno a sinistra
-// della sua lineetta, e le mostra di nuovo con un clic sulla freccia.
+// Tendina hides the menu bar icons that sit to the left of its divider and
+// shows them again when you click its arrow.
 //
-// Come funziona su macOS 27 (misurato il 23/09/2026 su macOS 27.0, 26A428):
-// * le icone non sono più finestre separate, le disegna MenuBarAgent;
-// * quando un'icona non ci sta, macOS la sposta nel suo menu di troppo pieno
-//   insieme a TUTTE le icone alla sua sinistra, senza lasciare buchi;
-// * un'icona più larga di circa metà schermo viene scartata e ignorata.
-// Per nascondere basta quindi allargare il separatore oltre lo spazio libero
-// ma sotto la metà dello schermo.
+// How it works on macOS 27 (measured on 23 Sep 2026, macOS 27.0 build 26A428):
+// * status items are no longer separate windows: MenuBarAgent draws them all;
+// * when an item does not fit, macOS moves it into its overflow menu together
+//   with EVERY item to its left, without leaving a gap;
+// * an item wider than about half the screen is discarded and ignored.
+// Hiding therefore just means widening the divider beyond the free space but
+// below half the screen width.
 //
-// Su macOS 26 e precedenti le icone sono ancora finestre separate e vale il
-// metodo classico di Hidden Bar e Ice: separatore largo 10.000 punti, che
-// spinge fuori dallo schermo tutto quello che ha a sinistra. NON PROVATO qui
-// (questo Mac ha macOS 27): è il metodo che quelle app usavano fino a macOS 26.
+// On macOS 26 and earlier, status items are still separate windows and the
+// classic Hidden Bar / Ice method applies: a 10,000-point divider pushes
+// everything to its left off screen. NOT TESTED here (this Mac runs macOS 27):
+// it is the method those apps used up to macOS 26.
 //
-// Si usano solo funzioni pubbliche di Apple, nessun permesso di Accessibilità
-// o di registrazione schermo.
+// Only public Apple APIs are used: no Accessibility or Screen Recording
+// permission.
 
-enum Preferenze {
-    static let richiudiDaSola = "richiudiDaSola"
-    static let primoAvvioFatto = "primoAvvioFatto"
+/// Localized text from Resources/<language>.lproj/Localizable.strings.
+func localized(_ key: String) -> String {
+    NSLocalizedString(key, comment: "")
 }
 
-final class Tendina: NSObject, NSMenuDelegate {
-    // Ordine di creazione importante: macOS mette ogni nuova icona a sinistra
-    // delle altre, quindi il separatore nasce subito a sinistra della freccia.
-    private let freccia = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-    private let separatore = NSStatusBar.system.statusItem(withLength: 10)
+enum Defaults {
+    // Stored keys come from version 1.0, which used Italian names.
+    // They are kept so existing settings survive the update.
+    static let autoCollapse = "richiudiDaSola"
+    static let didShowWelcome = "primoAvvioFatto"
+}
 
-    private(set) var chiusa = false
-    private var timerRichiusura: Timer?
-    private var scorciatoia: EventHotKeyRef?
+final class MenuBarController: NSObject, NSMenuDelegate {
+    // Creation order matters: macOS places every new item to the left of the
+    // existing ones, so the divider starts right next to the arrow, on its left.
+    private let arrow = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+    private let divider = NSStatusBar.system.statusItem(withLength: 10)
 
-    private let secondiRichiusura: TimeInterval = 10
-    private let larghezzaAperta: CGFloat = 10
+    private(set) var isCollapsed = false
+    private var collapseTimer: Timer?
+    private var hotKey: EventHotKeyRef?
+
+    private let autoCollapseDelay: TimeInterval = 10
+    private let expandedDividerWidth: CGFloat = 10
 
     override init() {
         super.init()
-        UserDefaults.standard.register(defaults: [Preferenze.richiudiDaSola: true])
+        UserDefaults.standard.register(defaults: [Defaults.autoCollapse: true])
 
-        // I nomi fissi fanno ricordare a macOS la posizione scelta dall'utente.
-        freccia.autosaveName = "tendina_freccia"
-        separatore.autosaveName = "tendina_separatore"
+        // Fixed names make macOS remember where the user placed the items.
+        // They are the Italian names from version 1.0: changing them would
+        // make macOS forget those positions.
+        arrow.autosaveName = "tendina_freccia"
+        divider.autosaveName = "tendina_separatore"
 
-        if let bottone = freccia.button {
-            bottone.target = self
-            bottone.action = #selector(clicSullaFreccia(_:))
-            bottone.sendAction(on: [.leftMouseUp, .rightMouseUp])
-            bottone.toolTip = "Tendina: clic per mostrare o nascondere, clic destro per le opzioni"
+        if let button = arrow.button {
+            button.target = self
+            button.action = #selector(arrowClicked(_:))
+            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+            button.toolTip = localized("tooltip.arrow")
         }
-        separatore.button?.toolTip = "Tendina: le icone a sinistra di questa lineetta vengono nascoste"
+        divider.button?.toolTip = localized("tooltip.divider")
 
-        aggiornaAspetto()
-        registraScorciatoia()
+        updateAppearance()
+        registerHotKey()
 
         NotificationCenter.default.addObserver(
-            self, selector: #selector(schermiCambiati),
+            self, selector: #selector(screensChanged),
             name: NSApplication.didChangeScreenParametersNotification, object: nil)
     }
 
-    // MARK: Aprire e chiudere
+    // MARK: Expanding and collapsing
 
-    func alterna() {
-        chiusa ? apri() : chiudi()
+    func toggle() {
+        isCollapsed ? expand() : collapse()
     }
 
-    func apri() {
-        timerRichiusura?.invalidate()
-        chiusa = false
-        aggiornaAspetto()
-        if UserDefaults.standard.bool(forKey: Preferenze.richiudiDaSola) {
-            programmaRichiusura(fra: secondiRichiusura)
+    func expand() {
+        collapseTimer?.invalidate()
+        isCollapsed = false
+        updateAppearance()
+        if UserDefaults.standard.bool(forKey: Defaults.autoCollapse) {
+            scheduleCollapse(after: autoCollapseDelay)
         }
     }
 
-    func chiudi() {
-        timerRichiusura?.invalidate()
-        guard ordineCorretto() else {
-            avviso("La lineetta è a destra della freccia",
-                   testo: "Per sicurezza non nascondo niente, altrimenti sparirebbe anche la freccia.\n\nTieni premuto ⌘ e trascina la lineetta │ a sinistra della freccia, poi riprova.")
+    func collapse() {
+        collapseTimer?.invalidate()
+        guard isOrderCorrect() else {
+            showAlert(localized("alert.wrongOrder.title"), text: localized("alert.wrongOrder.text"))
             return
         }
-        chiusa = true
-        aggiornaAspetto()
+        isCollapsed = true
+        updateAppearance()
     }
 
-    private func aggiornaAspetto() {
-        if chiusa {
-            separatore.length = larghezzaChiusa()
-            separatore.button?.image = nil
-            freccia.button?.image = simbolo("chevron.left", descrizione: "Mostra le icone nascoste")
+    private func updateAppearance() {
+        if isCollapsed {
+            divider.length = collapsedDividerWidth()
+            divider.button?.image = nil
+            arrow.button?.image = symbol("chevron.left", description: localized("a11y.show"))
         } else {
-            separatore.length = larghezzaAperta
-            separatore.button?.image = lineetta()
-            freccia.button?.image = simbolo("chevron.right", descrizione: "Nascondi le icone")
+            divider.length = expandedDividerWidth
+            divider.button?.image = dividerLine()
+            arrow.button?.image = symbol("chevron.right", description: localized("a11y.hide"))
         }
     }
 
-    private func larghezzaChiusa() -> CGFloat {
+    private func collapsedDividerWidth() -> CGFloat {
         if #available(macOS 27, *) {
-            // Più largo dello spazio libero accanto alla tacca, ma sotto la metà
-            // dello schermo più stretto: oltre quella soglia macOS 27 scarta
-            // l'icona (misurato: su 1800 punti funziona a 850, scartata a 950).
-            let piuStretto = NSScreen.screens.map { $0.frame.width }.min() ?? 1440
-            return (piuStretto * 0.44).rounded()
+            // Wider than the free space next to the notch, but below half the
+            // narrowest screen: above that limit macOS 27 discards the item
+            // (measured on an 1800-point screen: works at 850, discarded at 950).
+            let narrowest = NSScreen.screens.map { $0.frame.width }.min() ?? 1440
+            return (narrowest * 0.44).rounded()
         } else {
-            // Metodo classico fino a macOS 26: fuori da qualunque schermo.
+            // Classic method up to macOS 26: off any screen.
             return 10_000
         }
     }
 
-    // Se la lineetta finisse a destra della freccia, chiudere nasconderebbe
-    // anche la freccia. Le posizioni lette sono affidabili solo a tendina aperta.
-    private func ordineCorretto() -> Bool {
-        guard let lineetta = separatore.button?.window?.frame,
-              let bottone = freccia.button?.window?.frame else { return true }
-        return lineetta.midX < bottone.midX
+    // If the divider ended up to the right of the arrow, collapsing would hide
+    // the arrow too. Positions are only reliable while expanded.
+    private func isOrderCorrect() -> Bool {
+        guard let dividerFrame = divider.button?.window?.frame,
+              let arrowFrame = arrow.button?.window?.frame else { return true }
+        return dividerFrame.midX < arrowFrame.midX
     }
 
-    private func programmaRichiusura(fra secondi: TimeInterval) {
-        timerRichiusura?.invalidate()
-        timerRichiusura = Timer.scheduledTimer(withTimeInterval: secondi, repeats: false) { [weak self] _ in
-            guard let self, !self.chiusa else { return }
-            // Non chiudere mentre si sta usando un menu o il mouse è sulla barra.
-            if self.menuAperto() || self.mouseSullaBarra() {
-                self.programmaRichiusura(fra: 3)
+    private func scheduleCollapse(after delay: TimeInterval) {
+        collapseTimer?.invalidate()
+        collapseTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { [weak self] _ in
+            guard let self, !self.isCollapsed else { return }
+            // Don't collapse while a menu is open or the pointer is on the menu bar.
+            if self.isMenuOpen() || self.isPointerOnMenuBar() {
+                self.scheduleCollapse(after: 3)
             } else {
-                self.chiudi()
+                self.collapse()
             }
         }
     }
 
-    private func menuAperto() -> Bool {
-        guard let finestre = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] else {
+    private func isMenuOpen() -> Bool {
+        guard let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] else {
             return false
         }
-        let livelloMenu = Int(CGWindowLevelForKey(.popUpMenuWindow))
-        return finestre.contains { ($0[kCGWindowLayer as String] as? Int) == livelloMenu }
+        let menuLevel = Int(CGWindowLevelForKey(.popUpMenuWindow))
+        return windows.contains { ($0[kCGWindowLayer as String] as? Int) == menuLevel }
     }
 
-    private func mouseSullaBarra() -> Bool {
-        let mouse = NSEvent.mouseLocation
-        return NSScreen.screens.contains { schermo in
-            schermo.frame.contains(mouse) && mouse.y >= schermo.visibleFrame.maxY
+    private func isPointerOnMenuBar() -> Bool {
+        let pointer = NSEvent.mouseLocation
+        return NSScreen.screens.contains { screen in
+            screen.frame.contains(pointer) && pointer.y >= screen.visibleFrame.maxY
         }
     }
 
-    @objc private func schermiCambiati() {
-        if chiusa { separatore.length = larghezzaChiusa() }
+    @objc private func screensChanged() {
+        if isCollapsed { divider.length = collapsedDividerWidth() }
     }
 
-    // MARK: Clic e menu
+    // MARK: Clicks and menu
 
-    @objc private func clicSullaFreccia(_ sender: Any?) {
-        guard let evento = NSApp.currentEvent else { return alterna() }
-        let clicDestro = evento.type == .rightMouseUp
-            || evento.modifierFlags.contains(.control)
-            || evento.modifierFlags.contains(.option)
-        if clicDestro {
-            mostraMenu()
+    @objc private func arrowClicked(_ sender: Any?) {
+        guard let event = NSApp.currentEvent else { return toggle() }
+        let isSecondaryClick = event.type == .rightMouseUp
+            || event.modifierFlags.contains(.control)
+            || event.modifierFlags.contains(.option)
+        if isSecondaryClick {
+            showMenu()
         } else {
-            alterna()
+            toggle()
         }
     }
 
-    private func mostraMenu() {
+    private func showMenu() {
         let menu = NSMenu()
         menu.delegate = self
 
-        let voceAlterna = NSMenuItem(title: chiusa ? "Mostra le icone nascoste" : "Nascondi le icone",
-                                     action: #selector(voceAlterna), keyEquivalent: "")
-        voceAlterna.target = self
-        menu.addItem(voceAlterna)
+        let toggleItem = NSMenuItem(title: localized(isCollapsed ? "menu.show" : "menu.hide"),
+                                    action: #selector(toggleFromMenu), keyEquivalent: "")
+        toggleItem.target = self
+        menu.addItem(toggleItem)
         menu.addItem(.separator())
 
-        let voceRichiudi = NSMenuItem(title: "Richiudi da sola dopo \(Int(secondiRichiusura)) secondi",
-                                      action: #selector(alternaRichiusura), keyEquivalent: "")
-        voceRichiudi.target = self
-        voceRichiudi.state = UserDefaults.standard.bool(forKey: Preferenze.richiudiDaSola) ? .on : .off
-        menu.addItem(voceRichiudi)
+        let autoCollapseItem = NSMenuItem(title: String(format: localized("menu.autoCollapse"), Int(autoCollapseDelay)),
+                                          action: #selector(toggleAutoCollapse), keyEquivalent: "")
+        autoCollapseItem.target = self
+        autoCollapseItem.state = UserDefaults.standard.bool(forKey: Defaults.autoCollapse) ? .on : .off
+        menu.addItem(autoCollapseItem)
 
-        let voceLogin = NSMenuItem(title: "Apri all'accensione del Mac",
-                                   action: #selector(alternaAvvioAlLogin), keyEquivalent: "")
-        voceLogin.target = self
-        voceLogin.state = SMAppService.mainApp.status == .enabled ? .on : .off
-        menu.addItem(voceLogin)
+        let loginItem = NSMenuItem(title: localized("menu.openAtLogin"),
+                                   action: #selector(toggleOpenAtLogin), keyEquivalent: "")
+        loginItem.target = self
+        loginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
+        menu.addItem(loginItem)
 
         menu.addItem(.separator())
-        let voceAiuto = NSMenuItem(title: "Come si usa…", action: #selector(mostraIstruzioni), keyEquivalent: "")
-        voceAiuto.target = self
-        menu.addItem(voceAiuto)
-        let voceEsci = NSMenuItem(title: "Esci da Tendina", action: #selector(esci), keyEquivalent: "q")
-        voceEsci.target = self
-        menu.addItem(voceEsci)
+        let helpItem = NSMenuItem(title: localized("menu.help"), action: #selector(showHelp), keyEquivalent: "")
+        helpItem.target = self
+        menu.addItem(helpItem)
+        let quitItem = NSMenuItem(title: localized("menu.quit"), action: #selector(quit), keyEquivalent: "q")
+        quitItem.target = self
+        menu.addItem(quitItem)
 
-        // Il menu si aggancia solo per questo clic, poi si stacca:
-        // così il clic sinistro resta libero per aprire e chiudere.
-        freccia.menu = menu
-        freccia.button?.performClick(nil)
+        // The menu is attached for this click only, then detached,
+        // so a left click keeps expanding and collapsing.
+        arrow.menu = menu
+        arrow.button?.performClick(nil)
     }
 
     func menuDidClose(_ menu: NSMenu) {
-        freccia.menu = nil
+        arrow.menu = nil
     }
 
-    @objc private func voceAlterna() { alterna() }
+    @objc private func toggleFromMenu() { toggle() }
 
-    @objc private func alternaRichiusura() {
-        let attiva = !UserDefaults.standard.bool(forKey: Preferenze.richiudiDaSola)
-        UserDefaults.standard.set(attiva, forKey: Preferenze.richiudiDaSola)
-        if attiva, !chiusa { programmaRichiusura(fra: secondiRichiusura) }
-        if !attiva { timerRichiusura?.invalidate() }
+    @objc private func toggleAutoCollapse() {
+        let isOn = !UserDefaults.standard.bool(forKey: Defaults.autoCollapse)
+        UserDefaults.standard.set(isOn, forKey: Defaults.autoCollapse)
+        if isOn, !isCollapsed { scheduleCollapse(after: autoCollapseDelay) }
+        if !isOn { collapseTimer?.invalidate() }
     }
 
-    @objc private func alternaAvvioAlLogin() {
-        let servizio = SMAppService.mainApp
+    @objc private func toggleOpenAtLogin() {
+        let service = SMAppService.mainApp
         do {
-            if servizio.status == .enabled {
-                try servizio.unregister()
+            if service.status == .enabled {
+                try service.unregister()
             } else {
-                try servizio.register()
+                try service.register()
             }
         } catch {
-            avviso("Non riesco a cambiare l'apertura all'accensione",
-                   testo: "Tendina deve stare nella cartella Applicazioni.\n\nDettaglio: \(error.localizedDescription)")
+            showAlert(localized("alert.login.title"),
+                      text: String(format: localized("alert.login.text"), error.localizedDescription))
         }
     }
 
-    @objc func mostraIstruzioni() {
-        avviso("Come si usa Tendina", testo: """
-        1. Tieni premuto ⌘ e trascina nella barra le icone che vuoi nascondere, mettendole a sinistra della lineetta │.
-        2. Clicca la freccia per nasconderle o mostrarle. Da tastiera: ⌃⌥⌘B.
-        3. Clic destro sulla freccia per le opzioni.
-
-        Se la barra è piena, anche a tendina aperta le icone che non ci stanno restano nascoste da macOS (su macOS 27 le trovi nella sua «).
-
-        Se la freccia sparisce: premi ⌃⌥⌘B, oppure riapri Tendina da Spotlight.
-        """)
+    @objc func showHelp() {
+        showAlert(localized("help.title"), text: localized("help.text"))
     }
 
-    @objc private func esci() {
+    @objc private func quit() {
         NSApp.terminate(nil)
     }
 
-    // MARK: Scorciatoia da tastiera ⌃⌥⌘B
+    // MARK: Keyboard shortcut ⌃⌥⌘B
 
-    // L'API Carbon è vecchia ma è l'unica che registra una scorciatoia
-    // globale senza chiedere il permesso di Accessibilità.
-    private func registraScorciatoia() {
-        var tipo = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
-        let io = Unmanaged.passUnretained(self).toOpaque()
-        InstallEventHandler(GetApplicationEventTarget(), { _, _, dati in
-            guard let dati else { return noErr }
-            let tendina = Unmanaged<Tendina>.fromOpaque(dati).takeUnretainedValue()
-            DispatchQueue.main.async { tendina.alterna() }
+    // The Carbon API is old, but it is the only one that registers a global
+    // shortcut without asking for the Accessibility permission.
+    private func registerHotKey() {
+        var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
+        let context = Unmanaged.passUnretained(self).toOpaque()
+        InstallEventHandler(GetApplicationEventTarget(), { _, _, userData in
+            guard let userData else { return noErr }
+            let controller = Unmanaged<MenuBarController>.fromOpaque(userData).takeUnretainedValue()
+            DispatchQueue.main.async { controller.toggle() }
             return noErr
-        }, 1, &tipo, io, nil)
+        }, 1, &eventType, context, nil)
 
         let id = EventHotKeyID(signature: OSType(0x5444_4E41), id: 1) // "TDNA"
-        let esito = RegisterEventHotKey(UInt32(kVK_ANSI_B), UInt32(cmdKey | optionKey | controlKey),
-                                        id, GetApplicationEventTarget(), 0, &scorciatoia)
-        if esito != noErr {
-            NSLog("Tendina: scorciatoia ⌃⌥⌘B non registrata (errore \(esito))")
+        let status = RegisterEventHotKey(UInt32(kVK_ANSI_B), UInt32(cmdKey | optionKey | controlKey),
+                                         id, GetApplicationEventTarget(), 0, &hotKey)
+        if status != noErr {
+            NSLog("Tendina: could not register the ⌃⌥⌘B shortcut (error \(status))")
         }
     }
 
-    // MARK: Grafica
+    // MARK: Graphics
 
-    private func simbolo(_ nome: String, descrizione: String) -> NSImage? {
-        let configurazione = NSImage.SymbolConfiguration(pointSize: 13, weight: .semibold)
-        let immagine = NSImage(systemSymbolName: nome, accessibilityDescription: descrizione)?
-            .withSymbolConfiguration(configurazione)
-        immagine?.isTemplate = true
-        return immagine
+    private func symbol(_ name: String, description: String) -> NSImage? {
+        let configuration = NSImage.SymbolConfiguration(pointSize: 13, weight: .semibold)
+        let image = NSImage(systemSymbolName: name, accessibilityDescription: description)?
+            .withSymbolConfiguration(configuration)
+        image?.isTemplate = true
+        return image
     }
 
-    private func lineetta() -> NSImage {
-        let immagine = NSImage(size: NSSize(width: 2, height: 14), flipped: false) { area in
+    private func dividerLine() -> NSImage {
+        let image = NSImage(size: NSSize(width: 2, height: 14), flipped: false) { rect in
             NSColor.black.setFill()
-            NSBezierPath(roundedRect: area, xRadius: 1, yRadius: 1).fill()
+            NSBezierPath(roundedRect: rect, xRadius: 1, yRadius: 1).fill()
             return true
         }
-        immagine.isTemplate = true
-        return immagine
+        image.isTemplate = true
+        return image
     }
 
-    private func avviso(_ titolo: String, testo: String) {
+    private func showAlert(_ title: String, text: String) {
         NSApp.activate(ignoringOtherApps: true)
-        let finestra = NSAlert()
-        finestra.messageText = titolo
-        finestra.informativeText = testo
-        finestra.addButton(withTitle: "OK")
-        finestra.runModal()
+        let alert = NSAlert()
+        alert.messageText = title
+        alert.informativeText = text
+        alert.addButton(withTitle: localized("alert.ok"))
+        alert.runModal()
     }
 }
 
-final class Applicazione: NSObject, NSApplicationDelegate {
-    private var tendina: Tendina?
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    private var controller: MenuBarController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let tendina = Tendina()
-        self.tendina = tendina
+        let controller = MenuBarController()
+        self.controller = controller
 
-        if !UserDefaults.standard.bool(forKey: Preferenze.primoAvvioFatto) {
-            UserDefaults.standard.set(true, forKey: Preferenze.primoAvvioFatto)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { tendina.mostraIstruzioni() }
+        if !UserDefaults.standard.bool(forKey: Defaults.didShowWelcome) {
+            UserDefaults.standard.set(true, forKey: Defaults.didShowWelcome)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { controller.showHelp() }
         } else {
-            // Si parte chiusi, dopo che macOS ha sistemato le icone nella barra.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { tendina.chiudi() }
+            // Start collapsed, once macOS has placed the items in the menu bar.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { controller.collapse() }
         }
     }
 
-    // Riaprire Tendina mentre è già aperta (Spotlight, Finder) mostra tutto:
-    // è la via d'uscita se la freccia è finita tra le icone nascoste.
+    // Opening Tendina again while it is running (Spotlight, Finder) shows
+    // everything: the way out if the arrow ended up among the hidden items.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        tendina?.apri()
+        controller?.expand()
         return false
     }
 }
 
 let app = NSApplication.shared
-let delegato = Applicazione()
-app.delegate = delegato
+let appDelegate = AppDelegate()
+app.delegate = appDelegate
 app.setActivationPolicy(.accessory)
 app.run()

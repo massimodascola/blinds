@@ -1,0 +1,23 @@
+/* Tendina, traduzione italiana */
+
+"tooltip.arrow" = "Tendina: clic per mostrare o nascondere, clic destro per le opzioni";
+"tooltip.divider" = "Tendina: le icone a sinistra di questa lineetta vengono nascoste";
+
+"a11y.show" = "Mostra le icone nascoste";
+"a11y.hide" = "Nascondi le icone";
+
+"menu.show" = "Mostra le icone nascoste";
+"menu.hide" = "Nascondi le icone";
+"menu.autoCollapse" = "Richiudi da sola dopo %d secondi";
+"menu.openAtLogin" = "Apri all'accensione del Mac";
+"menu.help" = "Come si usa…";
+"menu.quit" = "Esci da Tendina";
+
+"alert.ok" = "OK";
+"alert.wrongOrder.title" = "La lineetta è a destra della freccia";
+"alert.wrongOrder.text" = "Per sicurezza non nascondo niente, altrimenti sparirebbe anche la freccia.\n\nTieni premuto ⌘ e trascina la lineetta │ a sinistra della freccia, poi riprova.";
+"alert.login.title" = "Non riesco a cambiare l'apertura all'accensione";
+"alert.login.text" = "Tendina deve stare nella cartella Applicazioni.\n\nDettaglio: %@";
+
+"help.title" = "Come si usa Tendina";
+"help.text" = "1. Tieni premuto ⌘ e trascina nella barra le icone che vuoi nascondere, mettendole a sinistra della lineetta │.\n2. Clicca la freccia per nasconderle o mostrarle. Da tastiera: ⌃⌥⌘B.\n3. Clic destro sulla freccia per le opzioni.\n\nSe la barra è piena, anche a tendina aperta le icone che non ci stanno restano nascoste da macOS (su macOS 27 le trovi nella sua «).\n\nSe la freccia sparisce: premi ⌃⌥⌘B, oppure riapri Tendina da Spotlight.";
