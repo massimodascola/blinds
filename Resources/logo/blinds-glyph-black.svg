@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+<g transform="translate(6 6) scale(0.1824324) translate(-216 -216)">
+<clipPath id="inner"><rect x="250" y="250" width="524" height="524" rx="50"/></clipPath>
+<rect x="236" y="236" width="552" height="552" rx="64" fill="none" stroke="#1D1D1F" stroke-width="40"/>
+<rect x="250" y="250" width="524" height="256" fill="#1D1D1F" fill-opacity="1.0" clip-path="url(#inner)"/>
+<rect x="246" y="492" width="532" height="44" rx="22" fill="#1D1D1F"/>
+<line x1="512" y1="536" x2="512" y2="590" stroke="#1D1D1F" stroke-width="16" stroke-linecap="round"/>
+<circle cx="512" cy="612" r="22" fill="none" stroke="#1D1D1F" stroke-width="14"/>
+</g>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#47A9FF"/><stop offset="1" stop-color="#007AE6"/></linearGradient>
+<linearGradient id="hl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.18"/><stop offset="0.364" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+</defs>
+<rect width="120" height="120" rx="27" fill="url(#bg)"/>
+<rect width="120" height="120" rx="27" fill="url(#hl)"/>
+<g transform="scale(0.1456311) translate(-100 -100)">
+<clipPath id="inner"><rect x="250" y="250" width="524" height="524" rx="50"/></clipPath>
+<rect x="236" y="236" width="552" height="552" rx="64" fill="none" stroke="#FFFFFF" stroke-width="40"/>
+<rect x="250" y="250" width="524" height="256" fill="#FFFFFF" fill-opacity="0.9" clip-path="url(#inner)"/>
+<rect x="246" y="492" width="532" height="44" rx="22" fill="#FFFFFF"/>
+<line x1="512" y1="536" x2="512" y2="590" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+<circle cx="512" cy="612" r="22" fill="none" stroke="#FFFFFF" stroke-width="14"/>
+</g>
+</svg>

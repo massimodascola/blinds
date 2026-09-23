@@ -1,6 +1,6 @@
 import AppKit
 
-// Draws Tendina's icon (1024x1024) and saves it as a PNG.
+// Draws the Blinds icon (1024x1024) and saves it as a PNG.
 // Usage: swift tools/draw-icon.swift <file.png>
 //
 // A window with a half-lowered shade, white on blue. The blue is the macOS 27.0

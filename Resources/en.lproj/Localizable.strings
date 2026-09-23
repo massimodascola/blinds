@@ -1,7 +1,7 @@
-/* Tendina, English (default language) */
+/* Blinds, English (default language) */
 
-"tooltip.arrow" = "Tendina: click to show or hide, right-click for options";
-"tooltip.divider" = "Tendina: icons to the left of this divider get hidden";
+"tooltip.arrow" = "Blinds: click to show or hide, right-click for options";
+"tooltip.divider" = "Blinds: icons to the left of this divider get hidden";
 
 "a11y.show" = "Show hidden icons";
 "a11y.hide" = "Hide icons";
@@ -11,13 +11,13 @@
 "menu.autoCollapse" = "Hide Again After %d Seconds";
 "menu.openAtLogin" = "Open at Login";
 "menu.help" = "How to Use…";
-"menu.quit" = "Quit Tendina";
+"menu.quit" = "Quit Blinds";
 
 "alert.ok" = "OK";
 "alert.wrongOrder.title" = "The divider is to the right of the arrow";
 "alert.wrongOrder.text" = "To be safe, nothing was hidden: the arrow would disappear too.\n\nHold ⌘ and drag the │ divider to the left of the arrow, then try again.";
 "alert.login.title" = "Could not change Open at Login";
-"alert.login.text" = "Tendina must be in the Applications folder.\n\nDetails: %@";
+"alert.login.text" = "Blinds must be in the Applications folder.\n\nDetails: %@";
 
-"help.title" = "How to use Tendina";
-"help.text" = "1. Hold ⌘ and drag the menu bar icons you want to hide to the left of the │ divider.\n2. Click the arrow to hide or show them. Keyboard: ⌃⌥⌘B.\n3. Right-click the arrow for options.\n\nIf the menu bar is full, icons that don't fit stay hidden by macOS even when Tendina is open (on macOS 27 you find them in its « menu).\n\nIf the arrow disappears: press ⌃⌥⌘B, or open Tendina again from Spotlight.";
+"help.title" = "How to use Blinds";
+"help.text" = "1. Hold ⌘ and drag the menu bar icons you want to hide to the left of the │ divider.\n2. Click the arrow to hide or show them. Keyboard: ⌃⌥⌘B.\n3. Right-click the arrow for options.\n\nIf the menu bar is full, icons that don't fit stay hidden by macOS even when Blinds is open (on macOS 27 you find them in its « menu).\n\nIf the arrow disappears: press ⌃⌥⌘B, or open Blinds again from Spotlight.";

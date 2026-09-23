@@ -2,22 +2,24 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- The identifier comes from version 1.0, when the app was called Tendina.
+	     It is kept so macOS remembers icon positions, settings and Open at Login. -->
 	<key>CFBundleIdentifier</key>
 	<string>com.massimodascola.tendina</string>
 	<key>CFBundleName</key>
-	<string>Tendina</string>
+	<string>Blinds</string>
 	<key>CFBundleDisplayName</key>
-	<string>Tendina</string>
+	<string>Blinds</string>
 	<key>CFBundleIconFile</key>
-	<string>Tendina</string>
+	<string>Blinds</string>
 	<key>CFBundleExecutable</key>
-	<string>Tendina</string>
+	<string>Blinds</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.0</string>
+	<string>1.2.0</string>
 	<key>CFBundleVersion</key>
-	<string>2</string>
+	<string>3</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleLocalizations</key>

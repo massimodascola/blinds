@@ -2,7 +2,7 @@ import AppKit
 import Carbon.HIToolbox
 import ServiceManagement
 
-// Tendina hides the menu bar icons that sit to the left of its divider and
+// Blinds hides the menu bar icons that sit to the left of its divider and
 // shows them again when you click its arrow.
 //
 // How it works on macOS 27 (measured on 23 Sep 2026, macOS 27.0 build 26A428):
@@ -27,8 +27,8 @@ func localized(_ key: String) -> String {
 }
 
 enum Defaults {
-    // Stored keys come from version 1.0, which used Italian names.
-    // They are kept so existing settings survive the update.
+    // Stored keys come from version 1.0, when the app was called Tendina and
+    // used Italian names. They are kept so existing settings survive updates.
     static let autoCollapse = "richiudiDaSola"
     static let didShowWelcome = "primoAvvioFatto"
 }
@@ -51,8 +51,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         UserDefaults.standard.register(defaults: [Defaults.autoCollapse: true])
 
         // Fixed names make macOS remember where the user placed the items.
-        // They are the Italian names from version 1.0: changing them would
-        // make macOS forget those positions.
+        // They come from version 1.0, when the app was called Tendina:
+        // changing them would make macOS forget those positions.
         arrow.autosaveName = "tendina_freccia"
         divider.autosaveName = "tendina_separatore"
 
@@ -261,11 +261,11 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             return noErr
         }, 1, &eventType, context, nil)
 
-        let id = EventHotKeyID(signature: OSType(0x5444_4E41), id: 1) // "TDNA"
+        let id = EventHotKeyID(signature: OSType(0x424C_4E44), id: 1) // "BLND"
         let status = RegisterEventHotKey(UInt32(kVK_ANSI_B), UInt32(cmdKey | optionKey | controlKey),
                                          id, GetApplicationEventTarget(), 0, &hotKey)
         if status != noErr {
-            NSLog("Tendina: could not register the ⌃⌥⌘B shortcut (error \(status))")
+            NSLog("Blinds: could not register the ⌃⌥⌘B shortcut (error \(status))")
         }
     }
 
@@ -315,7 +315,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    // Opening Tendina again while it is running (Spotlight, Finder) shows
+    // Opening Blinds again while it is running (Spotlight, Finder) shows
     // everything: the way out if the arrow ended up among the hidden items.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         controller?.expand()
