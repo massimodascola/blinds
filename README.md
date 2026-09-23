@@ -1,4 +1,8 @@
+<p align="center"><img src="Resources/icona.png" width="160" alt="Icona di Tendina"></p>
+
 # Tendina
+
+*English version: [README.en.md](README.en.md)*
 
 Piccola app per la barra dei menu del Mac: nasconde le icone che scegli tu e le mostra con un clic. Sostituisce Hidden Bar, che su macOS 27 non funziona più.
 
@@ -52,8 +56,16 @@ Usa solo funzioni pubbliche di Apple: nessun permesso di Accessibilità, di regi
 * **Hidden Bar e Tendina insieme** si pestano i piedi: tenerne attiva una sola.
 * **Per disinstallare**: dal menu togli la spunta "Apri all'accensione", poi Esci, poi cestina `/Applications/Tendina.app`.
 
+## Autore e licenza
+
+Creata da **Massimo D'Ascola** ([@massimodascola](https://github.com/massimodascola)). Licenza MIT: puoi usarla, modificarla e ridistribuirla, mantenendo la nota sull'autore (vedi `LICENSE`).
+
+Sperimentale: provata solo su un MacBook Pro con tacca e macOS 27.0. Segnalazioni e correzioni sono benvenute nelle issue.
+
 ## File
 
 * `Sources/Tendina.swift`: tutto il programma (un solo file, commentato).
 * `Resources/Info.plist`: nome, identificativo `com.massimodascola.tendina`, niente icona nel Dock.
+* `Resources/Tendina.icns`, `Resources/icona.png`: l'icona.
+* `tools/disegna-icona.swift`, `tools/crea-icona.sh`: disegnano l'icona e la convertono. Servono solo se si cambia il disegno.
 * `build.sh`: compila, firma e installa.
