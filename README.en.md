@@ -6,6 +6,47 @@
 
 A tiny menu bar app for macOS that hides the icons you choose and shows them again with one click. Built as a replacement for Hidden Bar (and Ice), which stopped working on macOS 27. "Tendina" is Italian for "roller blind".
 
+## Install
+
+Three ways, pick one. All of them build the app on your own Mac, so no Apple signature is needed and no security warning shows up.
+
+You need an Apple Silicon Mac and Apple's developer tools. If you don't have them, install them for free with `xcode-select --install`.
+
+### 1. One command
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/massimodascola/tendina/master/install.sh | sh
+```
+
+Downloads the source, builds it, copies Tendina to Applications and launches it. Run the same command again to update. The script is [install.sh](install.sh): read it first if you want to know what it does.
+
+### 2. Homebrew
+
+```sh
+brew install massimodascola/tap/tendina
+tendina-installa
+```
+
+Homebrew builds Tendina but cannot copy apps into Applications on its own: the `tendina-installa` command does that. To update:
+
+```sh
+brew upgrade tendina && tendina-installa
+```
+
+### 3. From source
+
+```sh
+git clone https://github.com/massimodascola/tendina.git
+cd tendina
+sh build.sh --installa
+```
+
+To update, from the `tendina` folder: `git pull && sh build.sh --installa`. Without `--installa`, `build.sh` only builds `build/Tendina.app`.
+
+### Uninstall
+
+In Tendina's menu untick "Apri all'accensione" (open at login), then quit, then move `/Applications/Tendina.app` to the Trash. If you used Homebrew, also run `brew uninstall tendina`.
+
 ## How to use it
 
 * **Choose what to hide**: hold ⌘ and drag the menu bar icons you want to hide **to the left of the │ divider**. Everything to the right of the arrow always stays visible.
@@ -17,18 +58,6 @@ A tiny menu bar app for macOS that hides the icons you choose and shows them aga
   * Help, Quit.
 
 The divider is hidden while Tendina is closed: open it first to move more icons.
-
-## Install
-
-You need Xcode or the Command Line Tools.
-
-```sh
-git clone https://github.com/massimodascola/tendina.git
-cd tendina
-sh build.sh --installa
-```
-
-This builds `build/Tendina.app`, copies it to `/Applications` and launches it. Without `--installa` it only builds. The app is signed ad hoc for your own Mac: there is no notarized download yet.
 
 ## How it works
 
@@ -55,7 +84,8 @@ Only public Apple APIs are used: no Accessibility, Screen Recording or Input Mon
 * **Full menu bar**: on notched Macs there are about 790 points to the right of the notch. If the visible icons don't all fit when Tendina is open, macOS puts the leftmost ones in its « menu as usual.
 * **External displays**: not tested. On a wide screen with lots of free space, hidden icons might reappear.
 * **Apple Silicon only** (`arm64`). For Intel, change `-target` in `build.sh`.
-* Code, comments and identifiers are in Italian.
+* The app is signed ad hoc by the Mac that builds it. There is no prebuilt download.
+* The app's menus, code, comments and identifiers are in Italian.
 
 ## If something breaks
 

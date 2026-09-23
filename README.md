@@ -6,6 +6,47 @@
 
 Piccola app per la barra dei menu del Mac: nasconde le icone che scegli tu e le mostra con un clic. Sostituisce Hidden Bar, che su macOS 27 non funziona più.
 
+## Installare
+
+Tre strade, scegline una. Tutte compilano l'app sul tuo Mac: per questo non serve una firma Apple e non compare nessun avviso di sicurezza.
+
+Serve un Mac con Apple Silicon e gli strumenti di sviluppo di Apple. Se non li hai, si installano gratis con `xcode-select --install`.
+
+### 1. Un solo comando
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/massimodascola/tendina/master/install.sh | sh
+```
+
+Scarica il codice, lo compila, copia Tendina in Applicazioni e la avvia. Per aggiornarla, rilancia lo stesso comando. Lo script è [install.sh](install.sh): leggilo prima, se vuoi sapere cosa fa.
+
+### 2. Homebrew
+
+```sh
+brew install massimodascola/tap/tendina
+tendina-installa
+```
+
+Homebrew compila Tendina, ma non può copiare app in Applicazioni da solo: lo fa il comando `tendina-installa`. Per aggiornarla:
+
+```sh
+brew upgrade tendina && tendina-installa
+```
+
+### 3. Dal codice
+
+```sh
+git clone https://github.com/massimodascola/tendina.git
+cd tendina
+sh build.sh --installa
+```
+
+Per aggiornarla, dalla cartella `tendina`: `git pull && sh build.sh --installa`. Senza `--installa`, `build.sh` compila soltanto in `build/Tendina.app`.
+
+### Disinstallare
+
+Dal menu di Tendina togli la spunta "Apri all'accensione", poi Esci, poi cestina `/Applications/Tendina.app`. Se l'hai installata con Homebrew, anche `brew uninstall tendina`.
+
 ## Come si usa
 
 * **Scegliere cosa nascondere**: tieni premuto ⌘ e trascina nella barra le icone da nascondere, mettendole **a sinistra della lineetta │**. Quelle a destra della freccia restano sempre visibili.
@@ -17,16 +58,6 @@ Piccola app per la barra dei menu del Mac: nasconde le icone che scegli tu e le 
   * Come si usa, Esci.
 
 Quando la tendina è chiusa la lineetta non si vede: per spostare altre icone, prima aprila.
-
-## Installare o aggiornare
-
-Serve Xcode (o i Command Line Tools) già installato.
-
-```sh
-sh build.sh --installa
-```
-
-Compila in `build/Tendina.app`, la copia in `/Applications` e la avvia. Senza `--installa` compila soltanto.
 
 ## Come funziona
 
@@ -53,7 +84,7 @@ Usa solo funzioni pubbliche di Apple: nessun permesso di Accessibilità, di regi
 * **Barra piena**: il Mac ha la tacca, e a destra della tacca c'è posto per circa 790 punti di icone. Se a tendina aperta le icone non ci stanno tutte, macOS mette quelle più a sinistra nella sua « come sempre.
 * **Schermi esterni**: non provato. Su uno schermo largo, con molto spazio libero, le icone nascoste potrebbero ricomparire.
 * **Solo Mac con Apple Silicon** (`arm64`). Per un Mac Intel va cambiato il `-target` in `build.sh`.
-* La firma è "ad hoc", valida solo su questo Mac. Non è pensata per essere distribuita.
+* La firma è "ad hoc", fatta sul Mac che compila. Non c'è una versione già pronta da scaricare.
 
 ## Se si rompe
 
@@ -61,7 +92,6 @@ Usa solo funzioni pubbliche di Apple: nessun permesso di Accessibilità, di regi
 * **Non nasconde niente**: apri la tendina e controlla che le icone da nascondere siano a sinistra della lineetta. Se Tendina trova la lineetta a destra della freccia, non chiude e lo dice.
 * **Dopo un aggiornamento di macOS smette di funzionare**: probabilmente Apple ha cambiato la soglia di larghezza (vale per macOS 27 e successivi). Prova a cambiare `0.44` in `larghezzaChiusa()` dentro `Sources/Tendina.swift` (più basso se l'icona viene scartata e le icone ricompaiono), poi `sh build.sh --installa`.
 * **Hidden Bar e Tendina insieme** si pestano i piedi: tenerne attiva una sola.
-* **Per disinstallare**: dal menu togli la spunta "Apri all'accensione", poi Esci, poi cestina `/Applications/Tendina.app`.
 
 ## Autore e licenza
 
@@ -76,3 +106,5 @@ Sperimentale: provata solo su un MacBook Pro con tacca e macOS 27.0. Segnalazion
 * `Resources/Tendina.icns`, `Resources/icona.png`: l'icona, una finestra con la tendina abbassata sul blu di sistema di macOS 27 (`#0088FF`).
 * `tools/disegna-icona.swift`, `tools/crea-icona.sh`: disegnano l'icona e la convertono. Servono solo se si cambia il disegno.
 * `build.sh`: compila, firma e installa.
+* `install.sh`: installazione con un solo comando (scarica il codice e lancia `build.sh`).
+* La formula Homebrew sta in un repo a parte: [massimodascola/homebrew-tap](https://github.com/massimodascola/homebrew-tap).
