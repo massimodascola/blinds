@@ -109,7 +109,7 @@ Usa solo funzioni pubbliche di Apple: nessun permesso di Accessibilità, di regi
 ## Limiti noti
 
 * **Barra piena**: sui Mac con la tacca, a destra della tacca c'è posto per circa 790 punti di icone. Se con Blinds aperta le icone non ci stanno tutte, macOS mette quelle più a sinistra nella sua « come sempre.
-* **Schermi esterni**: non provato. Su uno schermo largo, con molto spazio libero, le icone nascoste potrebbero ricomparire.
+* **Monitor esterni molto larghi**: su un monitor molto più largo dello schermo del Mac le icone nascoste non spariscono, si spostano solo verso il centro della barra, con uno spazio vuoto prima della freccia. Visto su macOS 27.0 con un LG UltraWide da 2560 punti accanto a un MacBook Pro da 1800. Il motivo: macOS 27 scarta ogni elemento della barra largo più di circa metà del suo schermo, quindi la lineetta deve restare sotto la metà dello schermo *più piccolo* e non riesce a riempire lo spazio libero di quello grande. Più lineette risolverebbero, ma macOS mette ogni elemento nuovo all'estremo sinistro della barra e un'app non può spostarlo senza il permesso di Accessibilità, che Blinds non chiede.
 * **Solo Mac con Apple Silicon** (`arm64`). Per un Mac Intel va cambiato il `-target` in `build.sh`.
 * La firma è "ad hoc", fatta sul Mac che compila. Non c'è una versione già pronta da scaricare.
 

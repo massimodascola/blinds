@@ -109,7 +109,7 @@ Only public Apple APIs are used: no Accessibility, Screen Recording or Input Mon
 ## Known limits
 
 * **Full menu bar**: on notched Macs there are about 790 points to the right of the notch. If the visible icons don't all fit when Blinds is expanded, macOS puts the leftmost ones in its « menu as usual.
-* **External displays**: not tested. On a wide screen with lots of free space, hidden icons might reappear.
+* **Wide external displays**: on a monitor much wider than the Mac's own screen the hidden icons are not hidden, they only move towards the middle of the menu bar, with an empty gap before the arrow. Seen on macOS 27.0 with a 2560-point LG UltraWide next to an 1800-point MacBook Pro. The reason: macOS 27 discards any menu bar item wider than about half of its screen, so the divider has to stay below half of the *smallest* screen and can't fill the free space of the big one. Extra dividers would fix it, but macOS always places a new item at the far left of the menu bar and an app can't move it without the Accessibility permission, which Blinds doesn't ask for.
 * **Apple Silicon only** (`arm64`). For Intel, change `-target` in `build.sh`.
 * The app is signed ad hoc by the Mac that builds it. There is no prebuilt download.
 
