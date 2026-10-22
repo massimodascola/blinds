@@ -73,7 +73,7 @@ Dal menu di Blinds togli la spunta "Apri all'accensione del Mac", poi "Esci da B
 
 ## Come si usa
 
-* **Scegliere cosa nascondere**: tieni premuto ⌘ e trascina nella barra le icone da nascondere, mettendole **a sinistra della lineetta │**. Quelle a destra della freccia restano sempre visibili.
+* **Scegliere cosa nascondere**: tieni premuto ⌘ e trascina nella barra le icone da nascondere, mettendole **a sinistra delle lineette │**. Quelle a destra della freccia restano sempre visibili. Blinds usa una lineetta, o alcune affiancate quando uno schermo è molto più largo di quello del Mac: tienile vicine, subito accanto alla freccia.
 * **Aprire e chiudere**: clic sulla freccia. `‹` vuol dire "ci sono icone nascoste", `›` vuol dire "è tutto aperto".
 * **Da tastiera**: ⌃⌥⌘B (control, option, comando, B).
 * **Opzioni**: clic destro sulla freccia.
@@ -96,6 +96,8 @@ Misure fatte il 23/09/2026 su un MacBook Pro 14" con tacca, macOS 27.0 (build 26
 
 Blinds quindi allarga la lineetta al 44% della larghezza dello schermo più stretto (792 punti su quel Mac): troppo larga per starci, ma sotto la soglia. La lineetta e tutto quello che ha a sinistra spariscono. Per mostrare, torna larga 10 punti.
 
+Un elemento della barra non può essere largo più di circa metà del suo schermo, quindi su uno schermo molto più largo del più piccolo (un monitor esterno accanto a un MacBook) una lineetta sola ci sta nello spazio libero e sposterebbe soltanto le icone. In quel caso Blinds usa altre lineette accanto alla prima: la prima che non ci sta sparisce insieme a tutto quello che ha a sinistra. Con il solo MacBook le lineette sono due; con un monitor da 2560 punti (Studio Display, LG UltraWide) sono tre. Provato su macOS 27.0 con un LG UltraWide e uno Studio Display XDR accanto a un MacBook Pro da 1800 punti.
+
 Su macOS 26 e precedenti le icone sono ancora finestre separate. Lì Blinds usa il metodo classico di Hidden Bar e Ice: separatore largo 10.000 punti, che spinge fuori dallo schermo tutto quello che ha a sinistra.
 
 Usa solo funzioni pubbliche di Apple: nessun permesso di Accessibilità, di registrazione schermo o di monitoraggio input. La scorciatoia usa l'API Carbon, vecchia ma l'unica che non chiede permessi.
@@ -109,14 +111,14 @@ Usa solo funzioni pubbliche di Apple: nessun permesso di Accessibilità, di regi
 ## Limiti noti
 
 * **Barra piena**: sui Mac con la tacca, a destra della tacca c'è posto per circa 790 punti di icone. Se con Blinds aperta le icone non ci stanno tutte, macOS mette quelle più a sinistra nella sua « come sempre.
-* **Monitor esterni molto larghi**: su un monitor molto più largo dello schermo del Mac le icone nascoste non spariscono, si spostano solo verso il centro della barra, con uno spazio vuoto prima della freccia. Visto su macOS 27.0 con un LG UltraWide da 2560 punti accanto a un MacBook Pro da 1800. Il motivo: macOS 27 scarta ogni elemento della barra largo più di circa metà del suo schermo, quindi la lineetta deve restare sotto la metà dello schermo *più piccolo* e non riesce a riempire lo spazio libero di quello grande. Più lineette risolverebbero, ma macOS mette ogni elemento nuovo all'estremo sinistro della barra e un'app non può spostarlo senza il permesso di Accessibilità, che Blinds non chiede.
+* **Le lineette nuove vanno all'estremo sinistro**: macOS 27 mette ogni elemento nuovo della barra all'estremo sinistro, e un'app non può spostarlo senza il permesso di Accessibilità, che Blinds non chiede. In un'installazione nuova le lineette nascono insieme e si mettono in fila da sole. Quando aggiorni da una versione precedente, o colleghi uno schermo più largo di tutti quelli usati prima, Blinds aggiunge lineette all'estremo sinistro e mostra un messaggio: tieni premuto ⌘ e trascina ogni nuova │ accanto a quella vicina alla freccia. Si fa una volta sola: macOS ricorda dove stanno.
 * **Solo Mac con Apple Silicon** (`arm64`). Per un Mac Intel va cambiato il `-target` in `build.sh`.
 * La firma è "ad hoc", fatta sul Mac che compila. Non c'è una versione già pronta da scaricare.
 
 ## Se si rompe
 
 * **La freccia è sparita**: premi ⌃⌥⌘B, oppure riapri Blinds da Spotlight (riaprirla mostra tutto). Poi controlla che la lineetta sia a sinistra della freccia.
-* **Non nasconde niente**: apri Blinds e controlla che le icone da nascondere siano a sinistra della lineetta. Se Blinds trova la lineetta a destra della freccia, non chiude e lo dice.
+* **Non nasconde niente**, o su uno schermo largo sposta soltanto le icone: apri Blinds e controlla che le icone siano a sinistra delle lineette e che tutte le lineette │ siano vicine, accanto alla freccia. Se una lineetta è a destra della freccia, Blinds non chiude e lo dice.
 * **Dopo un aggiornamento di macOS smette di funzionare**: probabilmente Apple ha cambiato la soglia di larghezza (vale per macOS 27 e successivi). Prova a cambiare `0.44` in `collapsedDividerWidth()` dentro `Sources/Blinds.swift` (più basso se le icone ricompaiono), poi `sh build.sh --install`.
 * **Hidden Bar e Blinds insieme** si pestano i piedi: tenerne attiva una sola.
 
