@@ -10,6 +10,8 @@
 	<string>Blinds</string>
 	<key>CFBundleIconFile</key>
 	<string>Blinds</string>
+	<!-- The identifier comes from version 1.0, when the app was called Tendina.
+	     It is kept so macOS remembers icon positions, settings and Open at Login. -->
 	<key>CFBundleIdentifier</key>
 	<string>com.massimodascola.tendina</string>
 	<key>CFBundleLocalizations</key>
