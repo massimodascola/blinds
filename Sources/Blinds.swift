@@ -9,11 +9,9 @@ import ServiceManagement
 // * status items are no longer separate windows: MenuBarAgent draws them all;
 // * when an item does not fit, macOS moves it into its overflow menu together
 //   with EVERY item to its left, without leaving a gap;
-// * an item wider than about half its screen is discarded and ignored.
-// Hiding therefore means widening the divider beyond the free space but below
-// half the screen width. On a screen much wider than the narrowest one (an
-// external monitor next to a MacBook) one divider can't cover the free space,
-// so Blinds adds extra dividers next to it (see requiredExtraDividers).
+// * an item wider than about half the screen is discarded and ignored.
+// Hiding therefore just means widening the divider beyond the free space but
+// below half the screen width.
 //
 // On macOS 26 and earlier, status items are still separate windows and the
 // classic Hidden Bar / Ice method applies: a 10,000-point divider pushes
@@ -33,25 +31,13 @@ enum Defaults {
     // used Italian names. They are kept so existing settings survive updates.
     static let autoCollapse = "richiudiDaSola"
     static let didShowWelcome = "primoAvvioFatto"
-    // Number of extra dividers created so far. They are never removed, so
-    // macOS keeps remembering where the user placed them.
-    static let extraDividerCount = "extraDividerCount"
 }
 
 final class MenuBarController: NSObject, NSMenuDelegate {
-    // Creation order matters: macOS places every new item at the far left of
-    // the menu bar, so on a fresh install the divider lands right next to the
-    // arrow, on its left, and the extra dividers next to the divider.
+    // Creation order matters: macOS places every new item to the left of the
+    // existing ones, so the divider starts right next to the arrow, on its left.
     private let arrow = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private let divider = NSStatusBar.system.statusItem(withLength: 10)
-    // Extra dividers, left of the main one: together they cover screens wider
-    // than one divider can (see requiredExtraDividers).
-    private var extraDividers: [NSStatusItem] = []
-    private var allDividers: [NSStatusItem] { [divider] + extraDividers }
-
-    /// True when new extra dividers appeared at the far left of the menu bar
-    /// and the user has to drag them next to the main one.
-    private(set) var needsPlacementHelp = false
 
     private(set) var isCollapsed = false
     private var collapseTimer: Timer?
@@ -77,18 +63,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             button.toolTip = localized("tooltip.arrow")
         }
         divider.button?.toolTip = localized("tooltip.divider")
-
-        // Extra dividers from earlier runs come back where the user put them.
-        for _ in 0..<UserDefaults.standard.integer(forKey: Defaults.extraDividerCount) {
-            addExtraDivider()
-        }
-        // On a fresh install they are created right after the main divider,
-        // so macOS lines them up next to it. Otherwise new ones land at the
-        // far left of the menu bar and the user has to move them once.
-        let isFreshInstall = !UserDefaults.standard.bool(forKey: Defaults.didShowWelcome)
-        if addMissingExtraDividers() && !isFreshInstall {
-            needsPlacementHelp = true
-        }
 
         updateAppearance()
         registerHotKey()
@@ -125,59 +99,14 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     private func updateAppearance() {
         if isCollapsed {
-            let width = collapsedDividerWidth()
-            for item in allDividers {
-                item.length = width
-                item.button?.image = nil
-            }
+            divider.length = collapsedDividerWidth()
+            divider.button?.image = nil
             arrow.button?.image = symbol("chevron.left", description: localized("a11y.show"))
         } else {
-            for item in allDividers {
-                item.length = expandedDividerWidth
-                item.button?.image = dividerLine()
-            }
+            divider.length = expandedDividerWidth
+            divider.button?.image = dividerLine()
             arrow.button?.image = symbol("chevron.right", description: localized("a11y.hide"))
         }
-    }
-
-    // Extra dividers needed on macOS 27. One item can't be wider than about
-    // half of its screen, so on a screen much wider than the narrowest one the
-    // main divider alone fits in the free space and only pushes the hidden
-    // icons aside. Several dividers side by side add up: the first one that
-    // doesn't fit is dropped together with everything on its left. Measured on
-    // 24 Sep 2026 on macOS 27.0 with a 2560-point LG UltraWide next to an
-    // 1800-point MacBook Pro. The menus on the left and the icons on the right
-    // always take at least 300 points together, so the dividers must cover the
-    // widest screen minus that.
-    private func requiredExtraDividers() -> Int {
-        guard #available(macOS 27, *) else { return 0 }
-        let width = collapsedDividerWidth()
-        let widest = NSScreen.screens.map { $0.frame.width }.max() ?? width
-        let total = (max(widest - 300, width) / width).rounded(.up)
-        return max(0, Int(total) - 1)
-    }
-
-    private func addExtraDivider() {
-        let item = NSStatusBar.system.statusItem(withLength: expandedDividerWidth)
-        item.autosaveName = "blinds_divider_\(extraDividers.count + 1)"
-        item.button?.toolTip = localized("tooltip.divider")
-        extraDividers.append(item)
-    }
-
-    /// Adds the extra dividers the current screens need. Returns true if any
-    /// was added. Extra dividers are never removed, so their places are kept.
-    @discardableResult
-    private func addMissingExtraDividers() -> Bool {
-        let required = requiredExtraDividers()
-        guard required > extraDividers.count else { return false }
-        while extraDividers.count < required { addExtraDivider() }
-        UserDefaults.standard.set(extraDividers.count, forKey: Defaults.extraDividerCount)
-        return true
-    }
-
-    func showPlacementHelp() {
-        needsPlacementHelp = false
-        showAlert(localized("alert.newDividers.title"), text: localized("alert.newDividers.text"))
     }
 
     private func collapsedDividerWidth() -> CGFloat {
@@ -193,14 +122,12 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         }
     }
 
-    // If a divider ended up to the right of the arrow, collapsing would hide
+    // If the divider ended up to the right of the arrow, collapsing would hide
     // the arrow too. Positions are only reliable while expanded.
     private func isOrderCorrect() -> Bool {
-        guard let arrowFrame = arrow.button?.window?.frame else { return true }
-        return allDividers.allSatisfy { item in
-            guard let frame = item.button?.window?.frame else { return true }
-            return frame.midX < arrowFrame.midX
-        }
+        guard let dividerFrame = divider.button?.window?.frame,
+              let arrowFrame = arrow.button?.window?.frame else { return true }
+        return dividerFrame.midX < arrowFrame.midX
     }
 
     private func scheduleCollapse(after delay: TimeInterval) {
@@ -232,14 +159,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     @objc private func screensChanged() {
-        // A wider screen was connected: new dividers appear at the far left
-        // of the menu bar, so show everything and explain where they go.
-        if addMissingExtraDividers() {
-            expand()
-            showPlacementHelp()
-            return
-        }
-        if isCollapsed { updateAppearance() }
+        if isCollapsed { divider.length = collapsedDividerWidth() }
     }
 
     // MARK: Clicks and menu
@@ -389,9 +309,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if !UserDefaults.standard.bool(forKey: Defaults.didShowWelcome) {
             UserDefaults.standard.set(true, forKey: Defaults.didShowWelcome)
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) { controller.showHelp() }
-        } else if controller.needsPlacementHelp {
-            // New dividers to place: stay expanded so they can be seen.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { controller.showPlacementHelp() }
         } else {
             // Start collapsed, once macOS has placed the items in the menu bar.
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) { controller.collapse() }

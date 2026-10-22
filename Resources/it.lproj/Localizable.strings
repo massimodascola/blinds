@@ -1,7 +1,7 @@
 /* Blinds, traduzione italiana */
 
 "tooltip.arrow" = "Blinds: clic per mostrare o nascondere, clic destro per le opzioni";
-"tooltip.divider" = "Blinds: le icone a sinistra delle lineette vengono nascoste";
+"tooltip.divider" = "Blinds: le icone a sinistra di questa lineetta vengono nascoste";
 
 "a11y.show" = "Mostra le icone nascoste";
 "a11y.hide" = "Nascondi le icone";
@@ -14,12 +14,10 @@
 "menu.quit" = "Esci da Blinds";
 
 "alert.ok" = "OK";
-"alert.wrongOrder.title" = "Una lineetta è a destra della freccia";
-"alert.wrongOrder.text" = "Per sicurezza non nascondo niente, altrimenti sparirebbe anche la freccia.\n\nTieni premuto ⌘ e trascina ogni lineetta │ a sinistra della freccia, poi riprova.";
+"alert.wrongOrder.title" = "La lineetta è a destra della freccia";
+"alert.wrongOrder.text" = "Per sicurezza non nascondo niente, altrimenti sparirebbe anche la freccia.\n\nTieni premuto ⌘ e trascina la lineetta │ a sinistra della freccia, poi riprova.";
 "alert.login.title" = "Non riesco a cambiare l'apertura all'accensione";
 "alert.login.text" = "Blinds deve stare nella cartella Applicazioni.\n\nDettaglio: %@";
 
 "help.title" = "Come si usa Blinds";
-"help.text" = "1. Tieni premuto ⌘ e trascina nella barra le icone che vuoi nascondere, mettendole a sinistra delle lineette │.\n2. Clicca la freccia per nasconderle o mostrarle. Da tastiera: ⌃⌥⌘B.\n3. Clic destro sulla freccia per le opzioni.\n\nSe la barra è piena, anche con Blinds aperta le icone che non ci stanno restano nascoste da macOS (su macOS 27 le trovi nella sua «).\n\nSe la freccia sparisce: premi ⌃⌥⌘B, oppure riapri Blinds da Spotlight.";
-"alert.newDividers.title" = "Sposta le nuove lineette vicino alla freccia";
-"alert.newDividers.text" = "Per nascondere le icone anche sugli schermi larghi, ora Blinds usa più lineette │ una accanto all'altra. Quelle nuove sono comparse all'estremo sinistro della barra.\n\nTieni premuto ⌘ e trascina ogni nuova │ finché è accanto alla │ vicino alla freccia. Si fa una volta sola: macOS ricorda dove stanno.\n\nVengono nascoste le icone a sinistra di tutte le lineette.";
+"help.text" = "1. Tieni premuto ⌘ e trascina nella barra le icone che vuoi nascondere, mettendole a sinistra della lineetta │.\n2. Clicca la freccia per nasconderle o mostrarle. Da tastiera: ⌃⌥⌘B.\n3. Clic destro sulla freccia per le opzioni.\n\nSe la barra è piena, anche con Blinds aperta le icone che non ci stanno restano nascoste da macOS (su macOS 27 le trovi nella sua «).\n\nSe la freccia sparisce: premi ⌃⌥⌘B, oppure riapri Blinds da Spotlight.";

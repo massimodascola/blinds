@@ -73,7 +73,7 @@ In Blinds' menu untick "Open at Login", then choose "Quit Blinds", then move `/A
 
 ## How to use it
 
-* **Choose what to hide**: hold ⌘ and drag the menu bar icons you want to hide **to the left of the │ dividers**. Everything to the right of the arrow always stays visible. Blinds uses one divider, or a few side by side when a screen is much wider than the Mac's own: keep them together, right next to the arrow.
+* **Choose what to hide**: hold ⌘ and drag the menu bar icons you want to hide **to the left of the │ divider**. Everything to the right of the arrow always stays visible.
 * **Show and hide**: click the arrow. `‹` means "some icons are hidden", `›` means "everything is shown".
 * **Keyboard**: ⌃⌥⌘B (control, option, command, B).
 * **Options**: right-click the arrow.
@@ -96,8 +96,6 @@ Measured on a 14" MacBook Pro with a notch, macOS 27.0 (26A428), 1800-point wide
 
 So Blinds widens its divider to 44% of the narrowest screen (792 points here): too wide to fit, but below the limit. The divider and everything to its left disappear. To show them, it goes back to 10 points.
 
-A single item can't be wider than about half of its screen, so on a screen much wider than the narrowest one (an external monitor next to a MacBook) one divider fits in the free space and would only push the hidden icons aside. In that case Blinds uses extra dividers next to the first one: the first divider that doesn't fit is dropped together with everything on its left. With a MacBook alone there are two dividers; with a 2560-point monitor (Studio Display, LG UltraWide) there are three. Tested on macOS 27.0 with an LG UltraWide and a Studio Display XDR next to an 1800-point MacBook Pro.
-
 On macOS 26 and earlier, status items are still separate windows. There Blinds uses the classic Hidden Bar and Ice method: a 10,000-point divider that pushes everything to its left off screen.
 
 Only public Apple APIs are used: no Accessibility, Screen Recording or Input Monitoring permission. The global shortcut uses the old Carbon API, the only one that needs no permission.
@@ -111,14 +109,14 @@ Only public Apple APIs are used: no Accessibility, Screen Recording or Input Mon
 ## Known limits
 
 * **Full menu bar**: on notched Macs there are about 790 points to the right of the notch. If the visible icons don't all fit when Blinds is expanded, macOS puts the leftmost ones in its « menu as usual.
-* **New dividers go to the far left**: macOS 27 places every new menu bar item at the far left of the bar, and an app can't move it without the Accessibility permission, which Blinds doesn't ask for. On a fresh install the dividers are created together and line up by themselves. When you update from an older version, or connect a screen wider than any before, Blinds adds dividers at the far left and shows a message: hold ⌘ and drag each new │ next to the one beside the arrow. You do it once: macOS remembers where they go.
+* **Wide external displays**: on a monitor much wider than the Mac's own screen the hidden icons are not hidden, they only move towards the middle of the menu bar, with an empty gap before the arrow. Seen on macOS 27.0 with a 2560-point LG UltraWide next to an 1800-point MacBook Pro. The reason: macOS 27 discards any menu bar item wider than about half of its screen, so the divider has to stay below half of the *smallest* screen and can't fill the free space of the big one. Extra dividers would fix it, but macOS always places a new item at the far left of the menu bar and an app can't move it without the Accessibility permission, which Blinds doesn't ask for.
 * **Apple Silicon only** (`arm64`). For Intel, change `-target` in `build.sh`.
 * The app is signed ad hoc by the Mac that builds it. There is no prebuilt download.
 
 ## If something breaks
 
 * **The arrow disappeared**: press ⌃⌥⌘B, or open Blinds again from Spotlight (reopening shows everything). Then make sure the divider is to the left of the arrow.
-* **Nothing gets hidden**, or icons only move aside on a wide screen: expand Blinds and check that the icons are to the left of the dividers and that all the │ dividers sit together next to the arrow. If a divider is to the right of the arrow, Blinds refuses to collapse and tells you.
+* **Nothing gets hidden**: expand Blinds and check that the icons are to the left of the divider. If the divider is to the right of the arrow, Blinds refuses to collapse and tells you.
 * **It stops working after a macOS update**: Apple probably changed the width limit (macOS 27 and later). Try changing `0.44` in `collapsedDividerWidth()` in `Sources/Blinds.swift` (lower it if the icons come back), then run `sh build.sh --install`.
 * Don't run Hidden Bar and Blinds at the same time.
 
